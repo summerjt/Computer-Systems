@@ -1,7 +1,7 @@
 /* 
  * CS:APP Data Lab 
  * 
- * <Please put your name and userid here>
+ * <Summer Thompson, SUTH9598>
  * 
  * bits.c - Source file with your solutions to the Lab.
  *          This is the file you will hand in to your instructor.
@@ -175,7 +175,11 @@ NOTES:
  *   Rating: 1
  */
 int bitOr(int x, int y) {
-  return 2;
+    /*inverse both variables then combine, return the inverse of that*/
+    int varx=~x;
+    int vary=~y;
+    int z = varx&vary;
+    return ~z;
 }
 /* 
  * evenBits - return word with all even-numbered bits set to 1
@@ -184,7 +188,9 @@ int bitOr(int x, int y) {
  *   Rating: 1
  */
 int evenBits(void) {
-  return 2;
+    /* create two bits of all even number bits set to one and shift it to form a full word*/
+    int p= 0x55;
+    return (p<<24)+(p<<16)+(p<<8)+(p);
 }
 /* 
  * minusOne - return a value of -1 
@@ -193,7 +199,8 @@ int evenBits(void) {
  *   Rating: 1
  */
 int minusOne(void) {
-  return 2;
+    int x = 0;
+  return (~x);
 }
 /* 
  * allEvenBits - return 1 if all even-numbered bits in word set to 1
@@ -203,7 +210,13 @@ int minusOne(void) {
  *   Rating: 2
  */
 int allEvenBits(int x) {
-  return 2;
+    /*create mask of number with all even bits set to 1, or it with x, return not the inverse to tell if true or false*/
+    int z=0xAA;
+    int y= (z<<24)+(z<<16)+(z<<8)+z; /*num with even bits set to 1*/
+    int q=(x|y); /*even bits of x that were 1 */
+    int p=~q; /*will be all 0s if even bits were 1*/
+    return !p;
+   
 }
 /* 
  * anyOddBit - return 1 if any odd-numbered bit in word set to 1
@@ -213,7 +226,11 @@ int allEvenBits(int x) {
  *   Rating: 2
  */
 int anyOddBit(int x) {
-    return 2;
+    /*create word of all odd bits set to one, and with x, and use double logical not to tell if any of the odd bits were true*/
+    int z = 0xAA;
+    int y= (z<<24)+(z<<16)+(z<<8)+z; /*num with odd bits set to 1*/
+    int l=!!(x&y);
+    return l;
 }
 /* 
  * byteSwap - swaps the nth byte and the mth byte
@@ -225,7 +242,14 @@ int anyOddBit(int x) {
  *  Rating: 2
  */
 int byteSwap(int x, int n, int m) {
-    return 2;
+    /*isolate bytes to be swapped, move them to complementary position, and with x and mask to get result*/
+    int sn=n<<3; 
+    int sm=m<<3;
+    int p = (x>>sn)&0xff;
+    int q = (x>>sm)&0xff;
+    int r = ~((0xff<<sn)|(0xff<<sm)); /*all ff except spots to swap*/
+    return ((x&r)|(q<<sn)|(p<<sm));
+    
 }
 /* 
  * addOK - Determine if can compute x+y without overflow
@@ -236,7 +260,12 @@ int byteSwap(int x, int n, int m) {
  *   Rating: 3
  */
 int addOK(int x, int y) {
-  return 2;
+    /*check most significant bytes of numbers with a mask, compare with actual sum of numbers, return if msbs and sum match or if not*/
+    int mask= 1<<31; /*mask to check msb*/
+    int q=!((x&mask)^(y&mask));/*same sign would yeild 1000 <<31, different would yeild 0000*/
+    int sum = x+y; /*find actual sum*/
+    int p=!!((sum&mask)^(x&mask));/*check if sum has same sign as x.  return 1 if yes, 0 if no*/
+    return !(q&p);  /* if both q is 0, meaning x&y have different signs regardless of result of p, return 1, or if q and p are both true, result will be 0*/
 }
 /* 
  * conditional - same as x ? y : z 
@@ -246,7 +275,10 @@ int addOK(int x, int y) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+  /*if x is non zero, return y else return z*/
+    int xt = !!x; /*return 1 if x is true, 0 if false*/
+    int q= ~xt+1; /*~1 = -2+1 = -1 ie mask of all 1s if x is true, ~0=-1 + 1= 0 ie mask of all 0s if x is false*/
+    return (y&q)|(z&~q);
 }
 /* 
  * isAsciiDigit - return 1 if 0x30 <= x <= 0x39 (ASCII codes for characters '0' to '9')
@@ -258,7 +290,15 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isAsciiDigit(int x) {
-  return 2;
+    /*check x against upper and lower bounds using not +num, combine these results with mask to check against upper and lower bounds and return the and of these two varialbles*/
+    int high, low, cHigh, cLow;
+    int mask = 1;
+    mask<<=31;//first we make a mask that's all 1s
+    high = ~x+58;//we make a variable for our upper bound, the result should be greater than 0. 58 because it's 1+0x39
+    low = ~x+48;/*create lower limit value*/
+    cHigh = !(high&mask);//first we use & to see if the sign of our high value and the sign of our mask. We use ! to get a 0 or 1. A return of true should be 1 since we only have a single !
+    cLow = !!(low&mask);//we do the same operation except on we use 2 !! so that the value will be 1 if true
+    return (cHigh&cLow);
 }
 /* 
  * replaceByte(x,n,c) - Replace byte n in x with c
@@ -270,7 +310,12 @@ int isAsciiDigit(int x) {
  *   Rating: 3
  */
 int replaceByte(int x, int n, int c) {
-  return 2;
+    /*create mask over n bit, move new bit to that position, use and to combine x and mask and or to combine with new masked byte*/
+    int sn=n<<3;
+    int p = x&~(0xff<<sn); /*create mask over n bit */
+    int cp = c<<sn; /*move c over to n position*/
+    return (x&p)|cp;
+    
 }
 /* reverseBits - reverse the bits in a 32-bit integer,
               i.e. b0 swaps with b31, b1 with b30, etc
@@ -285,7 +330,16 @@ int replaceByte(int x, int n, int c) {
  *  Rating: 4
  */
 int reverseBits(int x) {
-  return 0;
+    /*use series of masks to swap and shift bits over and reverse */
+    int word =x; /* first we swap odd and even bits by using 0x55555555 = 10101010.... and shifting all the bits to the right first and masking, then shifting to the left and mask and then take the | of the two so that they are all swapped*/
+    word = ((word>>1) & 0x55555555) | ((word&0x55555555) <<1); /*next swap pairs of bits in the same way, using 0x33333333 = 0011001100110011. then shift over 2 so that we swap all the pairs of bits */
+    word = ((word>>2) & 0x33333333) | ((word&0x33333333) <<2); 
+    /*now swap sets of 4 bits using 0x0F0F0F0F = 0000111100001111 */
+    word = ((word>>4) & 0x0F0F0F0F) | ((word&0x0F0F0F0F) <<4); /*now we swap the bytes with 0x00FF00FF = 0000000011111111 */
+    word = ((word>>8) & 0x00FF00FF) | ((word&0x00FF00FF) <<8);
+    /*finally we swap the first half with the second half using 0xffff = 1111111111111111 */
+    word = ((word>>16) & 0xffff) | ((word&0xffff) <<16);
+    return word;
 }
 /*
  * satAdd - adds two numbers but when positive overflow occurs, returns
@@ -298,7 +352,12 @@ int reverseBits(int x) {
  *   Rating: 4
  */
 int satAdd(int x, int y) {
-  return 2;
+    /*compare actual sum with the two variables and compare with og x and y and combine.  Then check msb to see what the numbers were and return mins or maxes accordingly*/
+    int sum = x+y;/*first we hold the sum of x and y to compare later*/
+	int check=(sum^x)&(sum^y);/*checks whether the sign of the sum is the same as the sign of x. If the signs are different then we should get all 1s. We do the same with y and the we check if both these values have the same sign with one more & operator*/
+    check = check>>31;/*shift this number over so we just have a single sign bit*/
+	return (sum>>(check & 31)) + (check <<31);/*if there is no overflow 'sum' should be 0 so we will just return the sum of the two numbers like normal. If there is overflow the 'sum' will be all 1s we shift over by 31 bits and add all 1s. If we have negative overflow the sum will be a positive, in that case we will return the minimum value of 0*/
+
 }
 /*
  * Extra credit
