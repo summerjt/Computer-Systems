@@ -5,6 +5,7 @@
 using namespace std;
 
 class Filter {
+public:
   int divisor;
   int dim;
   int *data;

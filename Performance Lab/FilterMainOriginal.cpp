@@ -78,9 +78,9 @@ readFilter(string filename)
     filter -> setDivisor(div);
     for (int i=0; i < size; i++) {
       for (int j=0; j < size; j++) {
-        int value;
-        input >> value;
-        filter -> set(i,j,value);
+	int value;
+	input >> value;
+	filter -> set(i,j,value);
       }
     }
     return filter;
@@ -98,75 +98,37 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
   long long cycStart, cycStop;
 
   cycStart = rdtscll();
+
+  output -> width = input -> width;
+  output -> height = input -> height;
+
   
-  
-  //outer 3 loops
-  int col, row;
-  int width=input -> width;
-  int height=input -> height;
-  int colWsub1=width - 1;
-  int rowHsub1=height - 1;
-  output -> width = width;
-  output -> height = height;
-  //inner 2 loops
-  short j, i;
-  short divisor = filter -> divisor;
-  int dim=filter->dim;
-    //CopyFilterArray
-  short filterCopy[9];
-  for(j=0; j<3; j++){
-      for(i=0;i<3; i++){
-          filterCopy[i*dim+j]=filter->data[i*dim+j];
+  for(int col = 1; col < (input -> width) - 1; col = col + 1) {
+    for(int row = 1; row < (input -> height) - 1 ; row = row + 1) {
+      for(int plane = 0; plane < 3; plane++) {
+
+	output -> color[plane][row][col] = 0;
+
+	for (int j = 0; j < filter -> getSize(); j++) {
+	  for (int i = 0; i < filter -> getSize(); i++) {	
+	    output -> color[plane][row][col]
+	      = output -> color[plane][row][col]
+	      + (input -> color[plane][row + i - 1][col + j - 1] 
+		 * filter -> get(i, j) );
+	  }
+	}
+	
+	output -> color[plane][row][col] = 	
+	  output -> color[plane][row][col] / filter -> getDivisor();
+
+	if ( output -> color[plane][row][col]  < 0 ) {
+	  output -> color[plane][row][col] = 0;
+	}
+
+	if ( output -> color[plane][row][col]  > 255 ) { 
+	  output -> color[plane][row][col] = 255;
+	}
       }
-  }
-  int SumColor, SumColor1, SumColor2;
-  for(col = 1; col < colWsub1; col++) {
-    for(row = 1; row < rowHsub1 ; row++) {
-        SumColor=0;
-        SumColor1=0;
-        SumColor2=0;
-        //output -> color[0][row][col] = 0;
-        for (j = 0; j < 3; j++) {
-            for(i=0;i<3;i++){
-                SumColor+= input -> color[0][row+i-1][col+j-1]*filterCopy[i*dim+j];
-                SumColor1+= input -> color[1][row+i-1][col+j-1]*filterCopy[i*dim+j];
-                SumColor2+= input -> color[2][row+i-1][col+j-1]*filterCopy[i*dim+j];
-            }
-        }
-        if (divisor!=1){
-            SumColor /= divisor;
-            SumColor1 /= divisor;
-            SumColor2 /= divisor;
-        }
-        if (SumColor < 0) {
-          output -> color[0][row][col] = 0;
-        }
-        else if ( SumColor > 255 ) { 
-          output -> color[0][row][col] = 255;
-        }
-        else{
-            output -> color[0][row][col] = SumColor;
-        }
-        if (SumColor1 < 0) {
-          output -> color[1][row][col] = 0;
-        }
-        else if ( SumColor1 > 255 ) { 
-          output -> color[1][row][col] = 255;
-        }
-        else{
-            output -> color[1][row][col] = SumColor1;
-        }
-        if (SumColor2 < 0) {
-          output -> color[2][row][col] = 0;
-        }
-        else if ( SumColor2 > 255 ) { 
-          output -> color[2][row][col] = 255;
-        }
-        else{
-            output -> color[2][row][col] = SumColor2;
-        }
-        
-      
     }
   }
 
