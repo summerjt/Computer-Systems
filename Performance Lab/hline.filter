@@ -1,0 +1,18 @@
+3
+1
+-1	-2	-1
+0	0	0
+1	2	1
+
+
+ {
+            SumColor = input -> color[plane][row - 1][col-1]*filterCopy[0][0]
+                + input -> color[plane][row][col + j -1]*filterCopy[1][0]
+                + input -> color[plane][row + 1][col + j -1]*filterCopy[2][0];
+            SumColor = SumColor + input -> color[plane][row - 1][col]*filterCopy[0][1]
+                + input -> color[plane][row][col]*filterCopy[1][1]
+                + input -> color[plane][row + 1][col]*filterCopy[2][1];
+            SumColor = input -> color[plane][row - 1][col+1]*filterCopy[0][0]
+                + input -> color[plane][row][col + 1]*filterCopy[1][2]
+                + input -> color[plane][row + 1][col + 1]*filterCopy[2][2];
+        }
